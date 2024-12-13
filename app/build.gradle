@@ -5,7 +5,7 @@ plugins {
 
 android {
     namespace 'com.scroller.ledtext'
-    compileSdk 34
+    compileSdk 33
 
 signingConfigs {
         release {
@@ -18,7 +18,7 @@ signingConfigs {
     defaultConfig {
         applicationId "com.scroller.ledtext"
         minSdk 27
-        targetSdk 34
+        targetSdk 33
         versionCode 1
         versionName "1.0"
 
