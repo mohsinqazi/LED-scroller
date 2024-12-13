@@ -23,7 +23,7 @@ jobs:
           ./gradlew assembleRelease
 
       - name: Sign release APK
-        uses: stebeg/sign-android-apk@v1
+        uses: google-actions/android-signing@v1
         with:
           signing-key-base64: ${{ secrets.SIGNING_KEY_BASE64 }}
           signing-key-password: ${{ secrets.SIGNING_KEY_PASSWORD }}
