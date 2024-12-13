@@ -4,13 +4,12 @@ on:
   push:
     branches:
       - master
-
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
 
       - name: Set up Android
         uses: android-actions/setup-android@v2
@@ -24,7 +23,7 @@ jobs:
           ./gradlew assembleRelease
 
       - name: Sign release APK
-        uses: r0adkll/sign-android-apk@v1
+        uses: stebeg/sign-android-apk@v1
         with:
           signing-key-base64: ${{ secrets.SIGNING_KEY_BASE64 }}
           signing-key-password: ${{ secrets.SIGNING_KEY_PASSWORD }}
@@ -32,7 +31,7 @@ jobs:
           apk-file-path: app/build/outputs/apk/release/app-release-unsigned.apk
 
       - name: Upload signed APK artifact
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: app-release.apk
           path: app/build/outputs/apk/release/app-release.apk
