@@ -50,7 +50,7 @@ jobs:
       run: chmod +x gradlew
       env:
         USERNAME: ${{ github.actor }}
-        TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        TOKEN: ${{ secrets.TOKEN }}
 
    
     - name: Build Release apk
@@ -80,6 +80,7 @@ jobs:
     - name: Create Github Release
       uses: softprops/action-gh-release@v1
       with:
+         token: ${{ secrets.TOKEN }}
          generate_release_notes: true
          tag_name: v1.0.0
          prerelease: true
