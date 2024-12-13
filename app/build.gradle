@@ -7,6 +7,14 @@ android {
     namespace 'com.scroller.ledtext'
     compileSdk 34
 
+signingConfigs {
+        release {
+            storeFile file("keystore.jks")
+            storePassword System.getenv("SIGNING_STORE_PASSWORD")
+            keyAlias System.getenv("SIGNING_KEY_ALIAS")
+            keyPassword System.getenv("SIGNING_KEY_PASSWORD")
+        }
+    }
     defaultConfig {
         applicationId "com.scroller.ledtext"
         minSdk 27
