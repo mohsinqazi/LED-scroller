@@ -81,5 +81,5 @@ jobs:
       with:
          generate_release_notes: true
          prerelease: true
-         file: |
+         files: |
            app/build/outputs/apk/release/app-release.apk
