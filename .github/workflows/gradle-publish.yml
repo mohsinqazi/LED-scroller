@@ -28,14 +28,6 @@ jobs:
         distribution: 'temurin'
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
-    - name: Cache Gradle and wrapper
-      uses: actions/cache@v2
-      with:
-           path: |
-             ~/.gradle/caches
-             ~/.gradle/wrapper
-           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
-
     - name: Decode Keystore
       env:
            ENCODED_STRING: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
