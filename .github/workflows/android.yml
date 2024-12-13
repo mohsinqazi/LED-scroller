@@ -5,22 +5,32 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-
 jobs:
-  build:
-
-    runs-on: ubuntu-latest
-
-    steps:
-    - uses: actions/checkout@v4
-    - name: set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: '17'
-        distribution: 'temurin'
-        cache: gradle
-
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
+build:
+runs-on: ubuntu-latest
+steps:
+- uses: actions/checkout@v4
+- name: set up JDK 17
+uses: actions/setup-java@v4
+with:
+java-version: '17'
+distribution: 'temurin'
+cache: gradle
+- name: Grant execute permission for gradlew
+run: chmod +x gradlew
+- name: Build with Gradle
+run: ./gradlew assembleRelease
+- name: Sign APK
+uses: robstewart57/signapk@v1
+with:
+keystore: ${{ secrets.SIGNING_KEY_BASE64 }}
+keystore-password: ${{ secrets.SIGNING_KEY_PASSWORD }}
+key-alias: ${{ secrets.SIGNING_KEY_ALIAS }}
+key-password: ${{ secrets.SIGNING_KEY_PASSWORD }}
+input-apk: app/build/outputs/apk/release/app-release-unsigned.apk
+output-apk: app/build/outputs/apk/release/app-release.apk
+- name: Upload signed APK artifact
+uses: actions/upload-artifact@v4
+with:
+name: app-release.apk
+path: app/build/outputs/apk/release/app-release.apk
