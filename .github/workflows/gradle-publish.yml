@@ -10,8 +10,6 @@ name: Gradle Package
 on:
   push:
     branches: [ "master" ]
-  pull_request:
-    branches: [ "master" ]
 
 jobs:
   build:
@@ -30,18 +28,60 @@ jobs:
         distribution: 'temurin'
         server-id: github # Value of the distributionManagement/repository/id field of the pom.xml
         settings-path: ${{ github.workspace }} # location for the settings.xml file
+    - name: Cache Gradle and wrapper
+      uses: actions/cache@v2
+      with:
+           path: |
+             ~/.gradle/caches
+             ~/.gradle/wrapper
+           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*') }}
 
+    - name: Decode Keystore
+      env:
+           ENCODED_STRING: ${{ secrets.SIGNING_KEY_STORE_BASE64 }}
+           SIGNING_KEY_STORE_PATH: ${{ secrets.SIGNING_KEY_STORE_PATH }}
+ 
+      run: |
+           echo $ENCODED_STRING > keystore-b64.txt
+           base64 -d keystore-b64.txt > $SIGNING_KEY_STORE_PATH
     - name: Setup Gradle
       uses: gradle/actions/setup-gradle@af1da67850ed9a4cedd57bfd976089dd991e2582 # v4.0.0
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
-    - name: Build with Gradle
-      run: ./gradlew build
       env:
         USERNAME: ${{ github.actor }}
         TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-    # The USERNAME and TOKEN need to correspond to the credentials environment variables used in
-    # the publishing section of your build.gradle
-    #- name: Publish to GitHub Packages
-    #  run: ./gradlew publish
+   #2
+    - name: Build Release apk
+      env:
+         SIGNING_KEY_STORE_PATH: ${{ secrets.SIGNING_KEY_STORE_PATH }}
+         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+         SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+      run: ./gradlew assembleRelease
+
+    - name: Build Release bundle
+      env:
+         SIGNING_KEY_STORE_PATH: ${{ secrets.SIGNING_KEY_STORE_PATH }}
+         SIGNING_KEY_ALIAS: ${{ secrets.SIGNING_KEY_ALIAS }}
+         SIGNING_KEY_PASSWORD: ${{ secrets.SIGNING_KEY_PASSWORD }}
+         SIGNING_STORE_PASSWORD: ${{ secrets.SIGNING_STORE_PASSWORD }}
+      run: ./gradlew bundleRelease
+     #3
+    - name: Upload Release Build to Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+         name: release-artifacts
+         paths: |
+           app/build/outputs/apk/release/
+           app/build/outputs/bundle/release/
+     #4      
+    - name: Create Github Release
+      uses: softprops/action-gh-release@v1
+      with:
+         generate_release_notes: true
+         prerelease: true
+         files: |
+           app/build/outputs/apk/release/app-release.apk
+           app/build/outputs/bundle/release/app-release.aab
